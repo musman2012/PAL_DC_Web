@@ -1,0 +1,53 @@
+{
+
+  $schema: https://vega.github.io/schema/vega-lite/v4.json
+  title: Average Weigh Across the Complete Batch
+
+  // Define the data source
+  data: {
+    url: {
+        index: mi_weigh_data*,
+        %context%: true,
+        body: {
+          "size": 2500,
+        
+          "_source": [ "TIMESTAMP", "Avg_Wght", "Set_Point"]
+        } 
+      }
+      format: {"property": "hits.hits"}
+     
+    }
+    transform: [
+      {
+        calculate: "timeParse(datum._source.TIMESTAMP, '%d/%m/%Y %H:%M')", 
+        as: "time"
+      }
+      {
+        calculate: "datum._source.Avg_Wght", 
+        as: "Avg_Wght"
+      }
+      {
+        calculate: "datum._source.Set_Point", 
+        as: "Set_Point"
+      }
+    ],
+    
+    "repeat": {
+      "layer": ["Avg_Wght", "Set_Point"]
+    },
+    
+  "spec": {
+    mark: "line",
+    encoding: {
+      x: {field: "time", "type": "temporal"},
+      y: {
+        "field": {"repeat": "layer"}
+        "aggregate": "mean"
+      }
+      "color": {
+        "datum": {"repeat": "layer"},
+        "type": "nominal"
+      }
+    }
+  }
+}

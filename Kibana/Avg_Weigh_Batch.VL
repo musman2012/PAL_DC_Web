@@ -1,0 +1,68 @@
+{
+
+  $schema: https://vega.github.io/schema/vega-lite/v4.json
+  title: Average Weigh Across the Complete Batch
+
+  // Define the data source
+  data: {
+    url: {
+        index: mi_weigh_data*,
+        %context%: true,
+        body: {
+          "size": 2500,
+          // "query" : {
+          //   "term" : { "FLAG.keyword": "SCALE" }
+          // },
+          "_source": [ "TIMESTAMP", "Avg_Wght", "Set_Point"]
+        } 
+      }
+      format: {"property": "hits.hits"}
+     
+    }
+    transform: [
+      {
+        calculate: "timeParse(datum._source.TIMESTAMP, '%d/%m/%Y %H:%M')", 
+        as: "time"
+      }
+      {
+        calculate: "datum._source.Avg_Wght", 
+        as: "wght"
+      }
+      {
+        calculate: "datum._source.Set_Point", 
+        as: "sp"
+      }
+    ],
+  // layer: [
+  // {
+    mark: line
+  
+    encoding: {
+      x: { 
+        field: time
+        type: temporal
+       // axis: {title: false} // Customize X axis format
+      }
+      y: {
+        // The "doc_count" is the count per bucket.  Use it for Y axis.
+        field: wght
+        aggregate: average
+        type: quantitative
+        axis: {title: "Average Weight"}
+      }
+    }
+  // },
+  // {
+  //     mark: line
+      
+  //     encoding: {
+  //       y: {
+  //       field: sp
+  //       type: quantitative
+  //       size: {value: 2}
+  //       color: red
+  //       }
+  //     }
+  // }
+  // ]
+}

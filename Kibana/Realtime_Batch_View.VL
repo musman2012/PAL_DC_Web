@@ -1,0 +1,58 @@
+{
+
+  $schema: https://vega.github.io/schema/vega-lite/v4.json
+  title: PPM for Batches
+  // Define the data source
+  data: {
+    url: {
+        index: mi_weigh_data*,
+        %context%: true,
+        body: {
+          "size": 3000,
+          // "query" : {
+          //   "term" : { "FLAG.keyword": "SCALE" }
+          // },
+          "_source": ["PPM", "TIMESTAMP", "Scale"]
+        } 
+      }
+      format: {"property": "hits.hits"}
+    
+    }
+    transform: [
+      {
+        calculate: "timeParse(datum._source.TIMESTAMP, '%d/%m/%Y %H:%M')", 
+        as: "time"
+      }
+      {
+        calculate: "datum._source.PPM", 
+        as: "ppm"
+      }
+      {
+        calculate: "datum._source.Scale",
+        as: "scale"
+      }
+    ],
+
+  mark: line
+
+  encoding: {
+    x: { 
+      field: time
+      type: temporal
+     // axis: {title: false} // Customize X axis format
+    }
+    y: {
+      // The "doc_count" is the count per bucket.  Use it for Y axis.
+      field: ppm
+     // aggregate: sum
+      type: quantitative
+      axis: {title: "PPM"}
+    }
+    color: {
+      field: scale
+      type: nominal
+    }
+    
+    
+  }
+}
